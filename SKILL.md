@@ -1,28 +1,46 @@
 ---
-name: competitor-photo-apps-tracker
+name: competitor-system-app-tracker
 description: >
-  追踪八大手机厂商照片/相册/图库应用的新版本发布、功能更新、社区反馈和重要新闻，生成竞品周报。
-  覆盖竞品：Apple 照片、Google Photos、华为 HarmonyOS 图库、小米相册、OPPO 相册、VIVO 相册、荣耀相册、三星相册。
-  触发条件：(1) 用户请求照片应用竞品周报/竞品分析，(2) 用户询问某相册APP最新动态，(3) 用户要求追踪竞品照片APP每周动态。
-  不适用于：非照片类竞品、非周报频率的请求。
+  追踪八大手机厂商任意系统级应用（照片、备忘录、设置、相机等）的新版本发布、功能更新、社区反馈和重要新闻，生成竞品周报。
+  覆盖竞品：Apple、Google、华为、小米、OPPO、VIVO、荣耀、三星。
+  触发条件：(1) 用户提供系统应用名称并请求竞品分析，(2) 用户询问某系统APP在各厂商的最新动态。
+  不适用于：非系统应用类竞品、非周报频率的请求。
 ---
 
-# 竞品照片应用动态追踪
+# 竞品系统应用动态追踪
 
-追踪 8 大主流照片/相册/图库应用的每周动态，输出结构化竞品分析报告。
+追踪 8 大手机厂商的系统级应用每周动态，输出结构化竞品分析报告。
+
+## 前置条件
+
+**用户必须指定要分析的系统应用名称**，例如：
+- 照片 / 相册 / 图库
+- 备忘录 / 笔记
+- 相机
+- 设置
+- 计算器
+- 时钟
+- 天气
+- 日历
+- 文件管理
+- 其他系统预装应用
+
+如果用户未指定，先询问：「请问您要分析哪个系统应用？（如照片、备忘录、设置等）」
 
 ## 竞品范围
 
-| # | 竞品 | 平台 |
-|---|-----|------|
-| 1 | Apple 照片 | iOS / macOS |
-| 2 | Google Photos | Android / iOS / Web |
-| 3 | 华为 HarmonyOS 图库 | HarmonyOS |
-| 4 | 小米相册 | HyperOS / Android |
-| 5 | OPPO 相册 | ColorOS / Android |
-| 6 | VIVO 相册 | OriginOS / Android |
-| 7 | 荣耀相册 | MagicOS / Android |
-| 8 | 三星相册 | One UI / Android |
+| # | 厂商 | 平台 | 应用命名参考 |
+|---|-----|------|-------------|
+| 1 | Apple | iOS / macOS | Apple Photos, Apple Notes, Settings 等 |
+| 2 | Google | Android | Google Photos, Google Keep, Settings 等 |
+| 3 | 华为 | HarmonyOS | 图库、备忘录、设置 等 |
+| 4 | 小米 | HyperOS / Android | 相册、笔记、设置 等 |
+| 5 | OPPO | ColorOS / Android | 相册、便签、设置 等 |
+| 6 | VIVO | OriginOS / Android | 相册、笔记、设置 等 |
+| 7 | 荣耀 | MagicOS / Android | 相册、笔记、设置 等 |
+| 8 | 三星 | One UI / Android | Gallery, Samsung Notes, Settings 等 |
+
+> 各厂商对同一功能的系统应用名称可能不同，分析时需根据用户指定的应用名对应到各厂商的实际应用名称。
 
 ## 追踪维度
 
@@ -32,28 +50,36 @@ description: >
 
 ## 研究流程
 
+### 步骤 0：确认应用名称
+
+如果用户未在请求中明确指定系统应用名称，先询问并确认：
+- 应用名称是什么？（如照片、备忘录、设置等）
+- 是否有特定功能方向？（如 AI 功能、交互设计等）
+
+确认后将应用名称记为 `{app_name}`，贯穿后续所有步骤。
+
 ### 步骤 1：生成研究计划
 
 运行辅助脚本获取所有信息源 URL：
 
 ```bash
-python3 scripts/research_plan.py
+python3 scripts/research_plan.py --app "{app_name}"
 ```
 
-输出包含竞品 → 信息源 URL 的 JSON。
+脚本输出结构化 JSON，包含各厂商竞品信息源。如果脚本未内置该应用的信息源，则使用脚本提供的通用源模板，并通过 `web_search` 补充搜索各厂商 + 应用名称的最新动态链接。
 
 ### 步骤 2：抓取信息源
 
-每个竞品用 `web_fetch` 抓取 2–3 个关键信息源：
-- **第一优先级**：官方博客/新闻页/更新日志
+每个厂商用 `web_fetch` 抓取 2–3 个关键信息源：
+- **第一优先级**：官方博客/新闻页/更新日志 + 搜索到的针对性 URL
 - **第二优先级**：社区论坛（Reddit、微博、产品论坛）
 - **第三优先级**：科技媒体（36氪、少数派、9to5Google 等）
 
-若页面加载失败，从 `references/competitor-sources.md` 中换源重试。
+若 `references/competitor-sources.md` 中未收录该应用的源，先用 `web_search` 搜索 `{厂商} {app_name} 更新` 类关键词获取有效 URL，再进行抓取。
 
 ### 步骤 3：综合发现
 
-对每个竞品，按以下分类整理发现：
+对每个厂商竞品，按以下分类整理发现：
 - 🆕 **新功能/更新** — 版本号、功能新增
 - 💬 **用户反馈** — 吐槽、好评、功能诉求（提炼主题）
 - 📰 **新闻/事件** — 发布会、专利、合作
@@ -63,14 +89,16 @@ python3 scripts/research_plan.py
 ### 步骤 4：生成报告
 
 以 `assets/report-template.md` 为模板，填充：
+- `{app_name}` → 用户指定的系统应用名称
 - `{date}` → `YYYY-MM-DD`（报告日期）
 - `{week_start}` / `{week_end}` → 周一至周日
 - `{generated_at}` → ISO 时间戳
+- `{competitor_name}` → 各厂商在该应用上的实际名称
 - `{content_or_none}` → 综合发现内容
 - `{sources}` → 信息来源名称 + 链接
 - `{summary}` → 1–2 句竞争格局观察
 
-保存到：`workspace/竞品分析/竞品周报-{date}.md`
+保存到：`workspace/竞品分析/竞品周报-{app_name}-{date}.md`
 
 ### 步骤 5：同步至飞书（创建 + 写入内容）
 
@@ -81,8 +109,9 @@ python3 scripts/research_plan.py
 
 ## 输出格式规则
 
-- 每个竞品一个独立章节，清晰分隔
+- 每个厂商竞品一个独立章节，清晰分隔
 - 使用列表而非大段文字
 - 每条结论附来源链接
 - 「本周观察」限 1–2 句，聚焦整体格局
 - 英文来源的关键信息翻译为中文
+- 如某厂商在该应用上有独特命名或差异化功能，在章节标题中标注

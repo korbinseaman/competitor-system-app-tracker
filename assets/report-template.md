@@ -1,61 +1,61 @@
-# 竞品周报-{date}
+# 竞品系统应用动态追踪 — 报告模板
 
 > 追踪周期：{week_start} ~ {week_end}
 > 生成时间：{generated_at}
-> 竞品范围：Apple 照片、Google Photos、华为 HarmonyOS 图库、小米相册、OPPO 相册、VIVO 相册、荣耀相册、三星相册
+> 竞品范围：{app_name} — Apple、Google、华为、小米、OPPO、VIVO、荣耀、三星
 
 ---
 
-## Apple 照片
+## Apple {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## Google Photos
+## Google {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## 华为 HarmonyOS 图库
+## 华为 {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## 小米相册
+## 小米 {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## OPPO 相册
+## OPPO {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## VIVO 相册
+## VIVO {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## 荣耀相册
+## 荣耀 {app_name}
 
 {content_or_none}
 
 **信息来源：**
 - {sources}
 
-## 三星相册
+## 三星 {app_name}
 
 {content_or_none}
 
