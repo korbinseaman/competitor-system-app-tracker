@@ -106,12 +106,31 @@ python3 scripts/research_plan.py --app "{app_name}"
 
 保存到：`workspace/竞品分析/竞品周报-{app_name}-{date}.md`
 
-### 步骤 5：同步至飞书（创建 + 写入内容）
+### 步骤 5：同步至飞书（创建 + 写入内容 + 设置公开权限）
 
 1. 用 `feishu_doc`（action: create）创建飞书文档，获取 `doc_token`
 2. **立即用 `feishu_doc`（action: write, doc_token=上一步返回值）将步骤 4 生成的完整 Markdown 报告内容写入文档**
    - ⚠️ 必须确认 write 返回 `success: true` 且 `blocks_added > 0`，否则重试或报错提醒用户
-3. 将报告链接发送给用户
+3. **设置文档为互联网公开可读（任何人无需登录即可浏览）**：
+   - 从飞书配置中读取 `appId` 和 `appSecret`（位置：`~/.openclaw/config.yaml` → `channels.feishu`）
+   - 先用 tenant_access_token 获取授权，再调用飞书权限 API 设置 `link_share_entity` 为 `anyone_readable`：
+   ```bash
+   APP_ID="<从config读取的appId>"
+   APP_SECRET="<从config读取的appSecret>"
+   DOC_TOKEN="<步骤1获取的doc_token>"
+   # 获取 tenant_access_token
+   TOK_RESP=$(curl -s -X POST 'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal' \
+     -H 'Content-Type: application/json' \
+     -d "{\"app_id\":\"${APP_ID}\",\"app_secret\":\"${APP_SECRET}\"}")
+   TOKEN=$(echo "$TOK_RESP" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('tenant_access_token','') or exit(1))")
+   # 设置文档为公开可读
+   curl -s -X PATCH "https://open.feishu.cn/open-apis/drive/v1/permissions/${DOC_TOKEN}/public?type=docx" \
+     -H "Authorization: Bearer $TOKEN" \
+     -H 'Content-Type: application/json' \
+     -d '{"link_share_entity":"anyone_readable"}'
+   ```
+   - ⚠️ 必须确认返回 `"code": 0` 表示成功，否则报错提醒用户手动在飞书中设置「链接分享 → 互联网上获得链接的人可阅读」
+4. 将报告链接发送给用户
 
 ## 输出格式规则
 
